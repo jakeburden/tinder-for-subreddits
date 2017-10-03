@@ -13,11 +13,10 @@ if (process.env.NODE_ENV !== 'production') {
   // app.use(require('choo-service-worker')())
 }
 
+if (process.browser) app.use(require('./subreddit-streamdata'))
+
 app.route('/', require('./views/main'))
 app.route('/*', require('./views/404'))
 
-if (process.browser) app.use(require('./subreddit-streamdata'))
-
 if (!module.parent) app.mount('body')
 else module.exports = app
-

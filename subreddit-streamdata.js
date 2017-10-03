@@ -1,10 +1,10 @@
 var streamdataio = require('streamdataio-js-sdk')
-var jsonpatch = require('fast-json-patch')
+var applyReducer = require('fast-json-patch').applyReducer
 
 var key = 'ODRlZDNmYmUtMDAxZC00NWJmLTgwMzQtNTkzMWJiYjFhYjVj'
 
 var endpoints = {
-  random: 'https://www.reddit.com/r/subreddit/random.json'
+  random: 'https://www.reddit.com/r/random.json'
 }
 
 function redditStore (state, emitter) {
@@ -17,12 +17,13 @@ function redditStore (state, emitter) {
       // initialize your data with the initial snapshot
       console.log('data', data)
       state.subreddit = data
+      emitter.emit('render')
     })
     .onPatch(function (patch) {
       // update the data with the provided patch
       console.log('patch', patch)
-      state.subreddit = patch.reduce(jsonpatch.applyReducer, state.subreddit)
-      // randomSubreddit.close()
+      state.subreddit = patch.reduce(applyReducer, state.subreddit)
+      emitter.emit('render')
     })
     .onError(function (error) {
       console.error(error)
