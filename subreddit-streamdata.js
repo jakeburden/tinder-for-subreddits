@@ -11,13 +11,9 @@ function redditStore (state, emitter) {
   state.subreddits = []
   var subreddit = {}
 
-  var randomSubreddit = streamdataio.createEventSource(endpoints.random, key)
+  var stream = streamdataio.createEventSource(endpoints.random, key)
 
-  setInterval(function () {
-    emitter.emit('render')
-  }, 6000)
-
-  randomSubreddit
+  stream
     .onData(function (data) {
       // initialize your data with the initial snapshot
       console.log('data', data)
@@ -33,13 +29,13 @@ function redditStore (state, emitter) {
     })
     .onError(function (error) {
       console.error(error)
-      randomSubreddit.close()
+      stream.close()
     })
     .onOpen(function () {
       console.log('opened stream')
     })
 
-  randomSubreddit.open()
+  stream.open()
 }
 
 module.exports = redditStore
