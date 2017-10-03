@@ -8,22 +8,28 @@ var endpoints = {
 }
 
 function redditStore (state, emitter) {
-  state.subreddit = {}
+  state.subreddits = []
+  var subreddit = {}
 
   var randomSubreddit = streamdataio.createEventSource(endpoints.random, key)
+
+  setInterval(function () {
+    emitter.emit('render')
+  }, 6000)
 
   randomSubreddit
     .onData(function (data) {
       // initialize your data with the initial snapshot
       console.log('data', data)
-      state.subreddit = data
+      subreddit = data
+      state.subreddits.push(subreddit)
       emitter.emit('render')
     })
     .onPatch(function (patch) {
       // update the data with the provided patch
       console.log('patch', patch)
-      state.subreddit = patch.reduce(applyReducer, state.subreddit)
-      emitter.emit('render')
+      var sub = patch.reduce(applyReducer, subreddit)
+      state.subreddits.push(sub)
     })
     .onError(function (error) {
       console.error(error)

@@ -7,7 +7,7 @@ module.exports = view
 
 function view (state, emit) {
   if (state.title !== TITLE) emit(state.events.DOMTITLECHANGE, TITLE)
-  var subreddit = has(state.subreddit, 'data.children[0].data.subreddit_name_prefixed') || 'getting data'
+  var subreddit = has(state.subreddits.pop(), 'data.children[0].data.subreddit_name_prefixed') || 'getting data'
 
   return html`
     <body class="sans-serif">
