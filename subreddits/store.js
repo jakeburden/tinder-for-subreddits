@@ -9,6 +9,8 @@ var endpoints = {
 
 function redditStore (state, emitter) {
   state.subreddits = []
+  state.stream = 'open'
+
   var subreddit = {}
 
   var stream = streamdataio.createEventSource(endpoints.random, key)
@@ -26,6 +28,10 @@ function redditStore (state, emitter) {
       console.log('patch', patch)
       var sub = patch.reduce(applyReducer, subreddit)
       state.subreddits.push(sub)
+      if (state.subreddits.length === 10) {
+        stream.close() // close after 10 subreddits are queue
+        state.stream = 'closed'
+      }
     })
     .onError(function (error) {
       console.error(error)
@@ -33,9 +39,15 @@ function redditStore (state, emitter) {
     })
     .onOpen(function () {
       console.log('opened stream')
+      state.stream = 'open'
     })
 
   stream.open()
+
+  emitter.on('stream:open', function () {
+    stream.open()
+    state.stream = 'open'
+  })
 }
 
 module.exports = redditStore

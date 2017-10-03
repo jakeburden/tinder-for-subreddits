@@ -13,7 +13,7 @@ if (process.env.NODE_ENV !== 'production') {
   // app.use(require('choo-service-worker')())
 }
 
-if (process.browser) app.use(require('./subreddit-streamdata'))
+if (process.browser) app.use(require('./subreddits/store'))
 
 app.route('/', require('./views/main'))
 app.route('/*', require('./views/404'))
