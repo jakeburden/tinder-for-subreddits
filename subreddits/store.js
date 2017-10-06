@@ -1,52 +1,33 @@
-var streamdataio = require('streamdataio-js-sdk')
-var applyReducer = require('fast-json-patch').applyReducer
-
-var key = 'ODRlZDNmYmUtMDAxZC00NWJmLTgwMzQtNTkzMWJiYjFhYjVj'
-
-var endpoints = {
-  random: 'https://www.reddit.com/r/random.json'
-}
+var has = require('has-deep')
 
 function redditStore (state, emitter) {
   state.subreddits = []
   state.stream = 'open'
 
   var subreddit = {}
+  var prefixPath = 'data.children[0].data.subreddit_name_prefixed'
 
-  var stream = streamdataio.createEventSource(endpoints.random, key)
+  subreddit = state.source
+  state.subreddits.push(subreddit)
+  state.subreddit = has(subreddit, prefixPath)
+  emitter.emit('render')
 
-  stream
-    .onData(function (data) {
-      // initialize your data with the initial snapshot
-      console.log('data', data)
-      subreddit = data
-      state.subreddits.push(subreddit)
-      emitter.emit('render')
-    })
-    .onPatch(function (patch) {
-      // update the data with the provided patch
-      console.log('patch', patch)
-      var sub = patch.reduce(applyReducer, subreddit)
-      state.subreddits.push(sub)
-      if (state.subreddits.length === 10) {
-        stream.close() // close after 10 subreddits are queue
-        state.stream = 'closed'
-      }
-    })
-    .onError(function (error) {
-      console.error(error)
-      stream.close()
-    })
-    .onOpen(function () {
-      console.log('opened stream')
+  if (state.subreddits.length === 50) {
+    emitter.emit('stream:close') // close after 50 subreddits are queued
+    state.stream = 'closed'
+  }
+
+  emitter.on('next', function () {
+    // state.subreddits.shift()
+    if (!state.subreddits.length) state.subreddit = null
+    if ((state.subreddits.length < 3) || state.stream === 'closed') {
+      emitter.emit('stream:open')
       state.stream = 'open'
-    })
-
-  stream.open()
-
-  emitter.on('stream:open', function () {
-    stream.open()
-    state.stream = 'open'
+      state.subreddits = []
+      state.subreddit = {}
+    }
+    state.subreddit = has(state.subreddits.shift(), prefixPath)
+    emitter.emit('render')
   })
 }
 

@@ -1,5 +1,6 @@
 var css = require('sheetify')
 var choo = require('choo')
+var source = require('./streamdata')('https://www.reddit.com/r/random.json?obey_over18=true')
 
 css('tachyons')
 
@@ -13,6 +14,7 @@ if (process.env.NODE_ENV !== 'production') {
   // app.use(require('choo-service-worker')())
 }
 
+if (process.browser) app.use(source)
 if (process.browser) app.use(require('./subreddits/store'))
 
 app.route('/', require('./views/main'))
