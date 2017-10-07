@@ -3,7 +3,7 @@ var html = require('choo/html')
 module.exports = view
 
 function view (state, emit) {
-  if (state.subreddit) {
+  if (state.subreddit && state.subreddits.length > 3) {
     return html`
       <section class="subreddit">
         <h1 class="f-headline pa3 pa4-ns">
