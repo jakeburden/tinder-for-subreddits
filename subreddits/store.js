@@ -1,7 +1,7 @@
 var has = require('has-deep')
 
 function redditStore (state, emitter) {
-  var initial = true
+  state.initial = true
   state.subreddits = []
   state.stream = 'open'
 
@@ -16,9 +16,9 @@ function redditStore (state, emitter) {
   emitter.on('data', function () {
     subreddit = state.source
     state.subreddits.push(subreddit)
-    if (initial) {
+    if (state.initial || !state.subreddits.length) {
       state.subreddit = has(subreddit, prefixPath)
-      initial = false
+      state.initial = false
     }
     emitter.emit('render')
   })
@@ -29,8 +29,6 @@ function redditStore (state, emitter) {
     if ((state.subreddits.length < 3) || state.stream === 'closed') {
       emitter.emit('stream:open')
       state.stream = 'open'
-      state.subreddits = []
-      state.subreddit = {}
     }
     state.subreddit = has(state.subreddits.shift(), prefixPath)
     emitter.emit('render')

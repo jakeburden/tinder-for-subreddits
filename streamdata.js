@@ -11,6 +11,7 @@ function source (url) {
       .onData(function (data) {
         // initialize your data with the initial snapshot
         console.log('data', data)
+        state.initial = true
         state.source = data
         emitter.emit('data')
       })
