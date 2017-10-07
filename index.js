@@ -15,7 +15,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 if (process.browser) app.use(source)
-if (process.browser) app.use(require('./subreddits/store'))
+// if (process.browser) app.use(require('./subreddits/store'))
 
 app.route('/', require('./views/main'))
 app.route('/*', require('./views/404'))

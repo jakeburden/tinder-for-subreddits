@@ -3,8 +3,8 @@ var applyReducer = require('fast-json-patch').applyReducer
 
 var key = 'ODRlZDNmYmUtMDAxZC00NWJmLTgwMzQtNTkzMWJiYjFhYjVj'
 
-function source (state, emitter) {
-  return function (url) {
+function source (url) {
+  return function (state, emitter) {
     var stream = streamdataio.createEventSource(url, key)
 
     stream
