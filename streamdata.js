@@ -12,11 +12,13 @@ function source (url) {
         // initialize your data with the initial snapshot
         console.log('data', data)
         state.source = data
+        emitter.emit('data')
       })
       .onPatch(function (patch) {
         // update the data with the provided patch
         console.log('patch', patch)
         state.source = patch.reduce(applyReducer, state.source)
+        emitter.emit('data')
       })
       .onError(function (error) {
         console.error(error)

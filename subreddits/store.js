@@ -1,21 +1,27 @@
 var has = require('has-deep')
 
 function redditStore (state, emitter) {
+  var initial = true
   state.subreddits = []
   state.stream = 'open'
 
   var subreddit = {}
   var prefixPath = 'data.children[0].data.subreddit_name_prefixed'
 
-  subreddit = state.source
-  state.subreddits.push(subreddit)
-  state.subreddit = has(subreddit, prefixPath)
-  emitter.emit('render')
-
   if (state.subreddits.length === 50) {
     emitter.emit('stream:close') // close after 50 subreddits are queued
     state.stream = 'closed'
   }
+
+  emitter.on('data', function () {
+    subreddit = state.source
+    state.subreddits.push(subreddit)
+    if (initial) {
+      state.subreddit = has(subreddit, prefixPath)
+      initial = false
+    }
+    emitter.emit('render')
+  })
 
   emitter.on('next', function () {
     // state.subreddits.shift()
@@ -29,6 +35,10 @@ function redditStore (state, emitter) {
     state.subreddit = has(state.subreddits.shift(), prefixPath)
     emitter.emit('render')
   })
+
+  if (!state.subreddits.length) {
+    emitter.emit('stream:open')
+  }
 }
 
 module.exports = redditStore
